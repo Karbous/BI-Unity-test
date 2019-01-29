@@ -9,6 +9,7 @@ public class Plants : MonoBehaviour
     [SerializeField] [Range(100, 10000)] int maxNumberOfPlants = 100;
     [SerializeField] float plantSize = 1f;
     [SerializeField] float terrainSize = 100f;
+    [SerializeField] [Range(1, 100)] int percentOfPlantsToFire = 20;
 
     [SerializeField] GameObject plantPrefab;
     [SerializeField] LayerMask terrainMask;
@@ -84,6 +85,7 @@ public class Plants : MonoBehaviour
         for (int i = 0; i < plantsOnTerrain.Count; i++)
         {
             MovePlant(plantsOnTerrain[i], plantsPoolPosition, plantsPoolParent);
+            plantsOnTerrain[i].GetComponent<Plant>().ResetStateAndColor();
         }
         plantsPool.AddRange(plantsOnTerrain);
         plantsOnTerrain.Clear();
@@ -96,6 +98,17 @@ public class Plants : MonoBehaviour
         newPlant.transform.SetParent(plantsOnTerrainParent);
     }
 
+    public void SetPlantsOnFire()
+    {
+        if (plantsOnTerrain.Count > 0)
+        {
+            int plantSetOnFire = plantsOnTerrain.Count * percentOfPlantsToFire / 100;
+            for (int i = 0; i < plantSetOnFire; i++)
+            {
+                plantsOnTerrain[i].GetComponent<Plant>().SetOnFire();
+            }
+        }
+    }
 
     private Vector3 PlantRandomPosition()
     {

@@ -104,3 +104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9193e31ec1f773d428ba1c825f3558ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  green: {r: 0.2784314, g: 0.8784314, b: 0.20392157, a: 1}
+  red: {r: 1, g: 0.0990566, b: 0.0990566, a: 1}
+  black: {r: 0, g: 0, b: 0, a: 1}
+  windChangeDelegate: {fileID: 11400000, guid: f3e46b3b8bb486f47b2a632617785205, type: 2}
+  burningTime: 3
