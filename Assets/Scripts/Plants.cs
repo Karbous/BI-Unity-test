@@ -7,10 +7,12 @@ using UnityEngine.Profiling;
 public class Plants : MonoBehaviour
 {
     [SerializeField] [Range(100, 10000)] int maxNumberOfPlants = 100;
-    [SerializeField] float plantSize = 1f;
-    [SerializeField] float terrainSize = 100f;
+    float plantSize = 1f;
+    float terrainSize = 100f;
+    float terrainHeight;
     [SerializeField] [Range(1, 100)] int percentOfPlantsToFire = 20;
 
+    [SerializeField] Terrain terrain;
     [SerializeField] GameObject plantPrefab;
     [SerializeField] LayerMask terrainMask;
     [SerializeField] Transform plantsOnTerrainParent;
@@ -21,12 +23,12 @@ public class Plants : MonoBehaviour
 
     Vector3 plantsPoolPosition = new Vector3(1000, 1000, 1000);
 
+
     private void Start()
     {
-        if (plantPrefab == null)
-        {
-            Debug.LogError("Plant prefab is missing!");
-        }
+        terrainSize = terrain.terrainData.bounds.max.x;
+        terrainHeight = terrain.terrainData.bounds.max.y;
+        plantSize = plantPrefab.transform.localScale.x;
     }
 
     public void GeneratePlants()
@@ -94,6 +96,11 @@ public class Plants : MonoBehaviour
     private void InstantiateNewPlant()
     {
         GameObject newPlant = Instantiate(plantPrefab, PlantRandomPosition(), Quaternion.identity, plantsOnTerrainParent);
+        newPlant.GetComponent<BoxCollider>().size = new Vector3(
+            newPlant.GetComponent<BoxCollider>().size.x,
+            2 * terrainHeight,
+            newPlant.GetComponent<BoxCollider>().size.z
+            );
         plantsOnTerrain.Add(newPlant);
         newPlant.transform.SetParent(plantsOnTerrainParent);
     }
