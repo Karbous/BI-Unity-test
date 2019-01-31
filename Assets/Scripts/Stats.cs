@@ -11,6 +11,9 @@ public class Stats : ScriptableObject
     public delegate void OnWindChangeDelegate(float windSpeed, Vector3 windDirection);
     public event OnWindChangeDelegate OnWindChange;
 
+    public delegate void OnSimulationChangeDelegate();
+    public event OnSimulationChangeDelegate OnSimulationChange;
+
     [Range(100, 10000)] public int maxNumberOfPlants = 100;
     [Range(1, 100)] public int percentOfPlantsToFire = 10;
 
@@ -25,16 +28,23 @@ public class Stats : ScriptableObject
     public float minWindSpeed = 1f;
     public float maxWindSpeed = 5f;
 
-
-
     [HideInInspector] public Vector3 windDirection = new Vector3(0, 0, 0);
     [HideInInspector] public float waitForCatchFire = 1f;
 
     public LayerMask fireColliderMask;
+    public LayerMask plantMask;
+    public LayerMask terrainMask;
 
+    public bool simulationRunning = false;
 
     public void ChangeWind()
     {
         OnWindChange?.Invoke(waitForCatchFire, windDirection);
+    }
+
+    public void ChangeSimulation()
+    {
+        simulationRunning = !simulationRunning;
+        OnSimulationChange?.Invoke();
     }
 }

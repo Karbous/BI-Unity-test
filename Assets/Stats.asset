@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Stats
   m_EditorClassIdentifier: 
   maxNumberOfPlants: 2000
-  percentOfPlantsToFire: 5
+  percentOfPlantsToFire: 10
   green: {r: 0, g: 1, b: 0, a: 1}
   red: {r: 1, g: 0, b: 0, a: 1}
   black: {r: 0, g: 0, b: 0, a: 1}
@@ -21,9 +21,16 @@ MonoBehaviour:
   burnDistance: 3
   sphereCastRadius: 0.75
   minWindSpeed: 1
-  maxWindSpeed: 10
+  maxWindSpeed: 5
   windDirection: {x: 0, y: 0, z: 1}
-  waitForCatchFire: 10
+  waitForCatchFire: 5
   fireColliderMask:
     serializedVersion: 2
     m_Bits: 2048
+  plantMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  terrainMask:
+    serializedVersion: 2
+    m_Bits: 512
+  simulationRunning: 0

@@ -27,7 +27,7 @@ public class Wind : MonoBehaviour
     public void ChangeWindSpeed(Slider slider)
     {
         stats.waitForCatchFire = windSpeedSlider.maxValue - (slider.value - windSpeedSlider.minValue);
-        stats.ChangeWind();
+        //stats.ChangeWind();
     }
 
     public void ChangeWindDirection(Slider slider)

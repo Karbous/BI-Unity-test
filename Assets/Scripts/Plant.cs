@@ -7,7 +7,7 @@ public class Plant : MonoBehaviour
 {
     [SerializeField] Stats stats;
 
-    Stats.PlantState plantState = Stats.PlantState.green;
+    public Stats.PlantState plantState = Stats.PlantState.green;
 
     IEnumerator burnCoroutine;
     IEnumerator spreadFireCoroutine;
@@ -15,27 +15,61 @@ public class Plant : MonoBehaviour
    
     private void OnEnable()
     {
-        stats.OnWindChange += WindChanged;
+        stats.OnWindChange += RestartFireSpreading;
+        stats.OnSimulationChange += SimulationChanged;
     }
 
-    private void WindChanged(float windSpeed, Vector3 windDirection)
+    private void RestartFireSpreading(float windSpeed, Vector3 windDirection)
     {
-        if (spreadFireCoroutine != null && plantState == Stats.PlantState.onFire)
+        if (stats.simulationRunning && plantState == Stats.PlantState.onFire && spreadFireCoroutine != null)
         {
             StopCoroutine(spreadFireCoroutine);
             spreadFireCoroutine = SpreadFire();
             StartCoroutine(spreadFireCoroutine);
         }
     }
-    
+
+    private void SimulationChanged()
+    {
+        if (stats.simulationRunning && plantState == Stats.PlantState.onFire)
+        {
+            StartBurning();
+        }
+        else
+        {
+            StopBurning();
+        }
+    }
+
     public void SetOnFire()
     {
-        plantState = Stats.PlantState.onFire;
-        ChangeColor(stats.red);
+        ChangePlantState(stats.red, Stats.PlantState.onFire);
+        if (stats.simulationRunning)
+        {
+            StartBurning();
+        }
+    }
+
+    private void StartBurning()
+    {
         burnCoroutine = Burn();
         spreadFireCoroutine = SpreadFire();
         StartCoroutine(burnCoroutine);
         StartCoroutine(spreadFireCoroutine);
+    }
+
+    private void StopBurning()
+    {
+        if (plantState == Stats.PlantState.onFire && spreadFireCoroutine != null && burnCoroutine != null)
+        {
+            StopCoroutine(burnCoroutine);
+            StopCoroutine(spreadFireCoroutine);
+        }
+    }
+
+    public void Extinguish()
+    {
+        ResetPlantState(Stats.PlantState.burned, stats.black);
     }
 
     IEnumerator Burn()
@@ -45,8 +79,7 @@ public class Plant : MonoBehaviour
         {
             StopCoroutine(spreadFireCoroutine);
         }
-        ChangeColor(stats.black);
-        plantState = Stats.PlantState.burned;
+        ChangePlantState(stats.black, Stats.PlantState.burned);
     }
     IEnumerator SpreadFire()
     {
@@ -68,25 +101,32 @@ public class Plant : MonoBehaviour
         }
     }
 
-    public void ResetStateAndColor()
+    public void ResetToGreen()
+    {
+        ResetPlantState(Stats.PlantState.green, stats.green);
+    }
+      
+
+    private void ResetPlantState(Stats.PlantState plantState, Color color)
     {
         if (burnCoroutine != null && spreadFireCoroutine != null)
         {
             StopCoroutine(burnCoroutine);
             StopCoroutine(spreadFireCoroutine);
         }
-        plantState = Stats.PlantState.green;
-        ChangeColor(stats.green);
+        ChangePlantState(color, plantState);
     }
-
-    public void ChangeColor(Color newColor)
+       
+    private void ChangePlantState(Color newColor, Stats.PlantState newState)
     {
         GetComponent<Renderer>().material.color = newColor;
+        plantState = newState;
     }
 
     
     private void OnDisable()
     {
-        stats.OnWindChange -= WindChanged;
+        stats.OnWindChange -= RestartFireSpreading;
+        stats.OnSimulationChange -= SimulationChanged;
     }
 }
