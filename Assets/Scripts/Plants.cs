@@ -6,11 +6,9 @@ using UnityEngine.Profiling;
 
 public class Plants : MonoBehaviour
 {
-    [SerializeField] [Range(100, 10000)] int maxNumberOfPlants = 100;
+    [SerializeField] Stats stats;
     float plantSize = 1f;
     float terrainSize = 100f;
-    float terrainHeight;
-    [SerializeField] [Range(1, 100)] int percentOfPlantsToFire = 20;
 
     [SerializeField] Terrain terrain;
     [SerializeField] GameObject plantPrefab;
@@ -21,26 +19,23 @@ public class Plants : MonoBehaviour
     List<GameObject> plantsOnTerrain = new List<GameObject>();
     List<GameObject> plantsPool = new List<GameObject>();
 
-    Vector3 plantsPoolPosition = new Vector3(1000, 1000, 1000);
-
 
     private void Start()
     {
         terrainSize = terrain.terrainData.bounds.max.x;
-        terrainHeight = terrain.terrainData.bounds.max.y;
         plantSize = plantPrefab.transform.localScale.x;
     }
 
     public void GeneratePlants()
     {
-        int plantsToBeGenerated = maxNumberOfPlants;
+        int plantsToBeGenerated = stats.maxNumberOfPlants;
 
         if (plantsOnTerrain.Count > 0)
         {
             ClearPlants();
         }
 
-        MovePlantsFromPool(ref plantsToBeGenerated);
+        UsePlantsFromPool(ref plantsToBeGenerated);
 
         if (plantsToBeGenerated > 0)
         {
@@ -51,31 +46,36 @@ public class Plants : MonoBehaviour
         }
     }
 
-
-    /*public void GeneratePlantsWithDestroy()
-    {
-        DestroyAllPlants();
-        for (int i = 0; i < maxNumberOfPlants; i++)
-        {
-            InstantiateNewPlant();
-        }
-
-    }
-
-    private void DestroyAllPlants()
+    /*
+    public void GeneratePlantsWithDestroy()
     {
         for (int i = 0; i < plantsOnTerrain.Count; i++)
         {
             Destroy(plantsOnTerrain[i]);
         }
+        for (int i = 0; i < stats.maxNumberOfPlants; i++)
+        {
+            InstantiateNewPlant();
+        }
     }
     */
 
-    private void MovePlantsFromPool(ref int plantsToBeGenerated)
+
+    
+    private void InstantiateNewPlant()
+    {
+        GameObject newPlant = Instantiate(plantPrefab, PlantRandomPosition(), Quaternion.identity, plantsOnTerrainParent);
+        plantsOnTerrain.Add(newPlant);
+        newPlant.transform.SetParent(plantsOnTerrainParent);
+    }
+
+    private void UsePlantsFromPool(ref int plantsToBeGenerated)
     {
         while (plantsPool.Count > 0 && plantsToBeGenerated > 0)
         {
-            MovePlant(plantsPool[0], PlantRandomPosition(), plantsOnTerrainParent);
+            plantsPool[0].SetActive(true);
+            plantsPool[0].transform.position = PlantRandomPosition();
+            plantsPool[0].transform.SetParent(plantsOnTerrainParent);
             plantsOnTerrain.Add(plantsPool[0]);
             plantsPool.RemoveAt(0);
             plantsToBeGenerated--;
@@ -86,35 +86,34 @@ public class Plants : MonoBehaviour
     {
         for (int i = 0; i < plantsOnTerrain.Count; i++)
         {
-            MovePlant(plantsOnTerrain[i], plantsPoolPosition, plantsPoolParent);
+            plantsOnTerrain[i].transform.SetParent(plantsPoolParent);
             plantsOnTerrain[i].GetComponent<Plant>().ResetStateAndColor();
+            plantsOnTerrain[i].SetActive(false);
         }
         plantsPool.AddRange(plantsOnTerrain);
         plantsOnTerrain.Clear();
     }
 
-    private void InstantiateNewPlant()
-    {
-        GameObject newPlant = Instantiate(plantPrefab, PlantRandomPosition(), Quaternion.identity, plantsOnTerrainParent);
-        newPlant.GetComponent<BoxCollider>().size = new Vector3(
-            newPlant.GetComponent<BoxCollider>().size.x,
-            2 * terrainHeight,
-            newPlant.GetComponent<BoxCollider>().size.z
-            );
-        plantsOnTerrain.Add(newPlant);
-        newPlant.transform.SetParent(plantsOnTerrainParent);
-    }
 
     public void SetPlantsOnFire()
     {
         if (plantsOnTerrain.Count > 0)
         {
-            int plantSetOnFire = plantsOnTerrain.Count * percentOfPlantsToFire / 100;
+            int plantSetOnFire = plantsOnTerrain.Count * stats.percentOfPlantsToFire / 100;
             for (int i = 0; i < plantSetOnFire; i++)
             {
                 plantsOnTerrain[i].GetComponent<Plant>().SetOnFire();
             }
         }
+    }
+
+    public void StopFireSimulation()
+    {
+        for (int i = 0; i < plantsOnTerrain.Count; i++)
+        {
+            plantsOnTerrain[i].GetComponent<Plant>().ResetStateAndColor();
+        }
+
     }
 
     private Vector3 PlantRandomPosition()
@@ -130,11 +129,5 @@ public class Plants : MonoBehaviour
         newPlantPosition.y = terrainSurface.point.y + (plantSize / 2);
 
         return newPlantPosition;
-    }
-
-    private void MovePlant(GameObject plant, Vector3 newPosition, Transform newParent)
-    {
-        plant.transform.position = newPosition;
-        plant.transform.SetParent(newParent);
     }
 }

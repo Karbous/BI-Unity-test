@@ -10,16 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e00aecd617a3acf4a8cd1e708ef8f6d7, type: 3}
-  m_Name: Plant Stats
+  m_Name: Stats
   m_EditorClassIdentifier: 
-  plantMask:
-    serializedVersion: 2
-    m_Bits: 1024
+  maxNumberOfPlants: 2000
+  percentOfPlantsToFire: 5
   green: {r: 0, g: 1, b: 0, a: 1}
   red: {r: 1, g: 0, b: 0, a: 1}
   black: {r: 0, g: 0, b: 0, a: 1}
-  burningTime: 5
-  burnDistance: 1
-  sphereCastRadius: 0.5
+  burningTime: 15
+  burnDistance: 3
+  sphereCastRadius: 0.75
+  minWindSpeed: 1
+  maxWindSpeed: 10
   windDirection: {x: 0, y: 0, z: 1}
-  waitForCatchFire: 5
+  waitForCatchFire: 10
+  fireColliderMask:
+    serializedVersion: 2
+    m_Bits: 2048

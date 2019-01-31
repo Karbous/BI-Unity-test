@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Plant : MonoBehaviour
 {
-    [SerializeField] PlantStats plantStats;
+    [SerializeField] Stats stats;
 
-    PlantStats.PlantState plantState = PlantStats.PlantState.green;
+    Stats.PlantState plantState = Stats.PlantState.green;
 
     IEnumerator burnCoroutine;
     IEnumerator spreadFireCoroutine;
@@ -15,19 +15,23 @@ public class Plant : MonoBehaviour
    
     private void OnEnable()
     {
-        plantStats.OnWindChange += WindChanged;
+        stats.OnWindChange += WindChanged;
     }
 
     private void WindChanged(float windSpeed, Vector3 windDirection)
     {
-        //restart fire spreading
+        if (spreadFireCoroutine != null && plantState == Stats.PlantState.onFire)
+        {
+            StopCoroutine(spreadFireCoroutine);
+            spreadFireCoroutine = SpreadFire();
+            StartCoroutine(spreadFireCoroutine);
+        }
     }
-
-
+    
     public void SetOnFire()
     {
-        plantState = PlantStats.PlantState.onFire;
-        ChangeColor(plantStats.red);
+        plantState = Stats.PlantState.onFire;
+        ChangeColor(stats.red);
         burnCoroutine = Burn();
         spreadFireCoroutine = SpreadFire();
         StartCoroutine(burnCoroutine);
@@ -36,30 +40,33 @@ public class Plant : MonoBehaviour
 
     IEnumerator Burn()
     {
-        yield return new WaitForSeconds(plantStats.burningTime);
+        yield return new WaitForSeconds(stats.burningTime);
         if (spreadFireCoroutine != null)
         {
             StopCoroutine(spreadFireCoroutine);
         }
-        ChangeColor(plantStats.black);
-        plantState = PlantStats.PlantState.burned;
+        ChangeColor(stats.black);
+        plantState = Stats.PlantState.burned;
     }
     IEnumerator SpreadFire()
     {
-        yield return new WaitForSeconds(plantStats.waitForCatchFire);
-        RaycastHit[] plantsToCatchFire = Physics.SphereCastAll(transform.position, plantStats.sphereCastRadius, plantStats.windDirection, plantStats.burnDistance, plantStats.plantMask);
+        yield return new WaitForSeconds(stats.waitForCatchFire);
+        RaycastHit[] plantsToCatchFire = Physics.SphereCastAll(
+            (transform.position + transform.localScale.x * stats.windDirection),
+            stats.sphereCastRadius,
+            stats.windDirection,
+            stats.burnDistance,
+            stats.fireColliderMask
+            );
         for (int i = 0; i < plantsToCatchFire.Length; i++)
         {
-            Plant plantHit = plantsToCatchFire[i].collider.gameObject.GetComponent<Plant>();
-            if (plantHit.plantState == PlantStats.PlantState.green)
+            Plant plantHit = plantsToCatchFire[i].collider.gameObject.GetComponentInParent<Plant>();
+            if (plantHit.plantState == Stats.PlantState.green)
             {
                 plantHit.SetOnFire();
             }
         }
     }
-
-
-
 
     public void ResetStateAndColor()
     {
@@ -68,8 +75,8 @@ public class Plant : MonoBehaviour
             StopCoroutine(burnCoroutine);
             StopCoroutine(spreadFireCoroutine);
         }
-        plantState = PlantStats.PlantState.green;
-        ChangeColor(plantStats.green);
+        plantState = Stats.PlantState.green;
+        ChangeColor(stats.green);
     }
 
     public void ChangeColor(Color newColor)
@@ -80,6 +87,6 @@ public class Plant : MonoBehaviour
     
     private void OnDisable()
     {
-        plantStats.OnWindChange -= WindChanged;
+        stats.OnWindChange -= WindChanged;
     }
 }

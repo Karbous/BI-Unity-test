@@ -6,30 +6,33 @@ using UnityEngine.UI;
 
 public class Wind : MonoBehaviour
 {
-    [SerializeField] PlantStats plantStats;
+    [SerializeField] Stats stats;
     [SerializeField] Slider windSpeedSlider;
     [SerializeField] Slider windDirectionSlider;
+    [SerializeField] Image windArrow;
 
     private void Start()
     {
-        plantStats.waitForCatchFire = windSpeedSlider.maxValue - (windSpeedSlider.value - windSpeedSlider.minValue);
-        plantStats.windDirection = Quaternion.Euler(new Vector3(0, windDirectionSlider.value, 0)) * Vector3.forward;
+        windSpeedSlider.maxValue = stats.maxWindSpeed;
+        windSpeedSlider.minValue = stats.minWindSpeed;
+        stats.waitForCatchFire = windSpeedSlider.maxValue - (windSpeedSlider.value - windSpeedSlider.minValue);
+        stats.windDirection = Quaternion.Euler(new Vector3(0, windDirectionSlider.value, 0)) * Vector3.forward;
     }
 
-    public void RotateWindBall(Slider slider)
+    public void RotateWindArrow(Slider slider)
     {
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, slider.value, transform.eulerAngles.z);
+        windArrow.transform.eulerAngles = new Vector3(windArrow.transform.eulerAngles.x, windArrow.transform.eulerAngles.y,  - 135 - slider.value);
     }
 
     public void ChangeWindSpeed(Slider slider)
     {
-        plantStats.waitForCatchFire = windSpeedSlider.maxValue - (slider.value - windSpeedSlider.minValue);
-        plantStats.ChangeWind();
+        stats.waitForCatchFire = windSpeedSlider.maxValue - (slider.value - windSpeedSlider.minValue);
+        stats.ChangeWind();
     }
 
     public void ChangeWindDirection(Slider slider)
     {
-        plantStats.windDirection = Quaternion.Euler(new Vector3(0, slider.value, 0)) * Vector3.forward;
-        plantStats.ChangeWind();
+        stats.windDirection = Quaternion.Euler(new Vector3(0, slider.value, 0)) * Vector3.forward;
+        stats.ChangeWind();
     }
 }
