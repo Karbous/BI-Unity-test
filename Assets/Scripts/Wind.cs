@@ -13,10 +13,13 @@ public class Wind : MonoBehaviour
 
     private void Start()
     {
+        // reads the min and max wind speed value from Stats
         windSpeedSlider.maxValue = stats.maxWindSpeed;
         windSpeedSlider.minValue = stats.minWindSpeed;
-        stats.waitForCatchFire = windSpeedSlider.maxValue - (windSpeedSlider.value - windSpeedSlider.minValue);
-        stats.windDirection = Quaternion.Euler(new Vector3(0, windDirectionSlider.value, 0)) * Vector3.forward;
+
+        // reset the wind speed and direction to default values
+        stats.waitForCatchFire = CalculateWaitForCatchFire(windSpeedSlider);
+        stats.windDirection = CalculateWindDirection(windDirectionSlider);
     }
 
     public void RotateWindArrow(Slider slider)
@@ -26,13 +29,28 @@ public class Wind : MonoBehaviour
 
     public void ChangeWindSpeed(Slider slider)
     {
-        stats.waitForCatchFire = windSpeedSlider.maxValue - (slider.value - windSpeedSlider.minValue);
+        stats.waitForCatchFire = CalculateWaitForCatchFire(slider);
+        // I decided that the change in wind speed will not invoke OnWindChange event 
+        // - the waitForCatchFire variable will be changed, but the fire spreading coroutine will not be resetted
         //stats.ChangeWind();
     }
 
     public void ChangeWindDirection(Slider slider)
     {
-        stats.windDirection = Quaternion.Euler(new Vector3(0, slider.value, 0)) * Vector3.forward;
+        stats.windDirection = CalculateWindDirection(slider);
+        // when the wind direction is changed by the slider, it invokes the OnWindChange event
         stats.ChangeWind();
+    }
+
+    private float CalculateWaitForCatchFire (Slider windSpeedSlider)
+    {    
+        // e.g. if min wind speed is 1 and max wind speed is 5, it means that it will take 5s for plants to catch fire with min wind speed and 1s with max wind speed 
+        return windSpeedSlider.maxValue - (windSpeedSlider.value - windSpeedSlider.minValue);
+    }
+
+    private Vector3 CalculateWindDirection(Slider windDirectionSlider)
+    {
+        // since fire spreading is simplified in 2D (XZ plane), we are reading only rotation in Y axis
+        return Quaternion.Euler(new Vector3(0, windDirectionSlider.value, 0)) * Vector3.forward;
     }
 }

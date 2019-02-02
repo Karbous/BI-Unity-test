@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class MouseInteraction : MonoBehaviour
 {
+    /*
+    This method is responsible for the mouse action, when plant or terrain is clicked, depending on mouse action mode selected.
+    Because I have to distinguish between plant and terrain collider, I cannot use OnMouseDown method and I have to create my own method with custom raycast.
+    */
+
     enum ButtonState { fire, add, remove }
     ButtonState activeButton = ButtonState.fire;
 
@@ -13,11 +18,13 @@ public class MouseInteraction : MonoBehaviour
 
     [SerializeField] Plants plants;
     [SerializeField] Stats stats;
+
     Plant clickedPlant;
     RaycastHit hit;
     Ray ray;
 
 
+    // changing state and text on button when clicked
     public void SwitchMode()
     {
         switch (activeButton)
@@ -52,25 +59,11 @@ public class MouseInteraction : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
             if ((activeButton == ButtonState.fire || activeButton == ButtonState.remove) && Physics.Raycast(ray, out hit, 1000, stats.plantMask))
             {
                 clickedPlant = hit.collider.gameObject.GetComponent<Plant>();
-
-                if (activeButton == ButtonState.fire)
-                {
-                    if (clickedPlant.plantState == Stats.PlantState.green)
-                    {
-                        clickedPlant.SetOnFire();
-                    }
-                    else if (clickedPlant.plantState == Stats.PlantState.onFire)
-                    {
-                        clickedPlant.Extinguish();
-                    }
-                }
-                else if (activeButton == ButtonState.remove)
-                {
-                    plants.ClearPlant(clickedPlant.gameObject);
-                }
+                MouseActionOnPlant();
             }
             else if (activeButton == ButtonState.add && Physics.Raycast(ray, out hit, 1000, stats.terrainMask))
             {
@@ -79,4 +72,22 @@ public class MouseInteraction : MonoBehaviour
         }
     }
 
+    private void MouseActionOnPlant()
+    {
+        if (activeButton == ButtonState.fire)
+        {
+            if (clickedPlant.plantState == Stats.PlantState.green)
+            {
+                clickedPlant.SetOnFire();
+            }
+            else if (clickedPlant.plantState == Stats.PlantState.onFire)
+            {
+                clickedPlant.Extinguish();
+            }
+        }
+        else if (activeButton == ButtonState.remove)
+        {
+            plants.ClearPlant(clickedPlant.gameObject);
+        }
+    }
 }
