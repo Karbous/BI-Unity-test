@@ -50,7 +50,7 @@ public class Wind : MonoBehaviour
 
     private Vector3 CalculateWindDirection(Slider windDirectionSlider)
     {
-        // since fire spreading is simplified in 2D (XZ plane), we are reading only rotation in Y axis
+        // since fire spreading is simplified in 2D (XZ plane), I am reading only rotation in Y axis
         return Quaternion.Euler(new Vector3(0, windDirectionSlider.value, 0)) * Vector3.forward;
     }
 }

@@ -2,14 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Profiling;
 
 public class Plants : MonoBehaviour
 {
     /*
     This script is responsible for adding and removing plants on terrain.
-    It can also set random plant on terrain on fire.
+    It can also set random plants on terrain on fire.
 
     I tried several different approaches when the forest is cleared or regenerated and checked performance in Profiler:
     1 ) Destroy the plants and instantiate again.
@@ -36,9 +34,8 @@ public class Plants : MonoBehaviour
     [SerializeField] List<GameObject> plantsOnTerrain = new List<GameObject>();
     [SerializeField] List<GameObject> plantsPool = new List<GameObject>();
 
-    // helper variables
+    // position of plant pool
     Vector3 plantsPoolPosition = new Vector3(1000, 1000, 1000);
-    int plantsToBeGenerated = 0;
 
     private void Start()
     {
@@ -52,7 +49,7 @@ public class Plants : MonoBehaviour
 
     public void GeneratePlants()
     {
-        plantsToBeGenerated = stats.maxNumberOfPlants;
+        int plantsToBeGenerated = stats.maxNumberOfPlants;
 
         // move plants from terrain to pool
         if (plantsOnTerrain.Count > 0)
@@ -84,11 +81,11 @@ public class Plants : MonoBehaviour
 
     public void ClearPlant(GameObject plant)
     {
-        plant.GetComponent<Plant>().MovedToPool();
-        plant.transform.SetParent(plantsPoolParent);
-        plantsPool.Add(plant);
+        plant.GetComponent<Plant>().MovedToPool();      //reset to deafault state
+        plant.transform.SetParent(plantsPoolParent);    //change parent
+        plantsPool.Add(plant);                          // move from pool List to terrain List
         plantsOnTerrain.Remove(plant);
-        plant.transform.position = plantsPoolPosition;
+        plant.transform.position = plantsPoolPosition;  //move to pool location
     }
 
 
@@ -103,6 +100,7 @@ public class Plants : MonoBehaviour
 
     private void AddPlantFromPool(Vector3 plantPosition, GameObject plant)
     {
+        // similar as ClearPlant method
         plant.transform.SetParent(plantsOnTerrainParent);
         plantsOnTerrain.Add(plant);
         plantsPool.Remove(plant);
@@ -141,30 +139,23 @@ public class Plants : MonoBehaviour
             {
                 plantsToSetOnFire = 1;
             }
-
-            // redo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             else
-            {/*
+            {
                 List<int> randomIndexes = new List<int>();
                 while (randomIndexes.Count < plantsToSetOnFire)
                 {
                     int newIndex = UnityEngine.Random.Range(0, plantsOnTerrain.Count);
                     if (!randomIndexes.Contains(newIndex))
                     {
-                        Plant plantToFire = plantsOnTerrain[newIndex].GetComponent<Plant>();
-                        if (plantToFire.plantState == Stats.PlantState.green)
-                        {
-                            plantToFire.SetOnFire();
-                            randomIndexes.Add(newIndex);
-                        }
+                        // The script doesn't take into account whether or not the random plant is already on fire.
+                        // It really doesn't matter, beacuase we don't need exact number and it add a little bit to the randomness.
+                        plantsOnTerrain[newIndex].GetComponent<Plant>().SetOnFire();
+                        randomIndexes.Add(newIndex);
                     }
                 }
-                */
             }
         }
     }
-
-    
 
     #region Helper methods
 

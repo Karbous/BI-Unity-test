@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e00aecd617a3acf4a8cd1e708ef8f6d7, type: 3}
   m_Name: Stats
   m_EditorClassIdentifier: 
-  maxNumberOfPlants: 100
+  maxNumberOfPlants: 2000
   percentOfPlantsToFire: 10
   green: {r: 0, g: 1, b: 0, a: 1}
   red: {r: 1, g: 0, b: 0, a: 1}

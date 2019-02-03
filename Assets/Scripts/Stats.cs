@@ -23,9 +23,9 @@ public class Stats : ScriptableObject
     public Color black = Color.black;       // indicates when plant is burned
 
     [Header("Fire spreading variables")]
-    public float burningTime = 5f;          // it takes this time for a plant to get from OnFire state to burned state
+    public float burningTime = 15f;         // it takes this time for a plant to get from OnFire state to burned state
     public float fireDistance = 3f;         // the reach of fire of burning plant, the plants beyond this distance cannot catch fire from this plant
-    public float sphereCastRadius = 1f;     // the radius of sphere in SphereCast, which is used to calculate what plants will catch fire
+    public float sphereCastRadius = 0.75f;  // the radius of sphere in SphereCast, which is used to calculate which plants will catch fire
     public float minWindSpeed = 1f;
     public float maxWindSpeed = 5f;         
 
